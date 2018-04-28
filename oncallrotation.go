@@ -47,6 +47,19 @@ func buildUSAHolidays() []Holiday {
 	}
 }
 
+func buildMEXHolidays() []Holiday {
+	return []Holiday{
+		Holiday{time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC), "Año Nuevo"},
+		Holiday{time.Date(0, time.February, 5, 0, 0, 0, 0, time.UTC), "Día de la Constitución Mexicana"},
+		Holiday{time.Date(0, time.March, 19, 0, 0, 0, 0, time.UTC), "Natalicio de Benito Juárez"},
+		Holiday{time.Date(0, time.May, 1, 0, 0, 0, 0, time.UTC), "Día del Trabajo"},
+		Holiday{time.Date(0, time.September, 16, 0, 0, 0, 0, time.UTC), "Día de la Independencia"},
+		Holiday{time.Date(0, time.November, 19, 0, 0, 0, 0, time.UTC), "Revolución Mexicana"},
+		Holiday{time.Date(0, time.December, 1, 0, 0, 0, 0, time.UTC), "Transmisión de Poder Ejecutivo Federal"},
+		Holiday{time.Date(0, time.December, 25, 0, 0, 0, 0, time.UTC), "Día de Navidad"},
+	}
+}
+
 func (onCallPerson OnCallPerson) String() string {
 	var buffer bytes.Buffer
 
@@ -110,5 +123,6 @@ func main() {
 	fmt.Println(initialRotationDate)
 
 	fmt.Println(buildUSAHolidays())
+	fmt.Println(buildMEXHolidays())
 
 }
