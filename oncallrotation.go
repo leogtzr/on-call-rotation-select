@@ -22,6 +22,12 @@ type OnCallPerson struct {
 	Location OnCallerLocation
 }
 
+// Rotation
+type Rotation struct {
+	date time.Time
+	OnCallPerson
+}
+
 // Holiday ...
 type Holiday struct {
 	Date    time.Time
