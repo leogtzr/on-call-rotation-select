@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -9,43 +10,25 @@ func main() {
 
 	rand.Seed(time.Now().Unix())
 
-	//dt := currentDate()
-	//fmt.Println(dt)
+	rotation := onCallShift()
 
-	//dt = dt.AddDate(0, 0, 7)
-	//fmt.Println(dt)
+	mx := normalizeHolidayBasedOnCurrentYear(buildMEXHolidays())
+	usa := normalizeHolidayBasedOnCurrentYear(buildUSAHolidays())
 
-	// Some code ...
-	//o := OnCallPerson{"Leo", MEX}
-	//fmt.Println(o)
+	for _, shift := range rotation {
 
-	//initialRotationDate := initialRotationDate()
-	//fmt.Println(initialRotationDate)
-
-	//fmt.Println(buildUSAHolidays())
-	//fmt.Println(buildMEXHolidays())
-
-	//fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	/*
-		team := nonRandomizedTeam()
-		for i := range team {
-			j := rand.Intn(i + 1)
-			team[i], team[j] = team[j], team[i]
+		if is, holiday := IsHolidayWithinShiftEstrict(mx, shift.Date); is && shift.Location == MEX {
+			fmt.Println(shift, " <====> ", holiday)
 		}
 
-		fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>")
-
-		for _, p := range team {
-			fmt.Println(p.Name, p.Location)
+		if is, holiday := IsHolidayWithinShiftEstrict(usa, shift.Date); is && shift.Location == USA {
+			fmt.Println(shift, " <====> ", holiday)
 		}
 
-		fmt.Println(int(time.Sunday), time.Sunday)
-		fmt.Println(int(time.Monday), time.Monday)
-		fmt.Println(int(time.Tuesday), time.Tuesday)
-		fmt.Println(int(time.Wednesday), time.Wednesday)
-		fmt.Println(int(time.Thursday), time.Thursday)
-		fmt.Println(int(time.Friday), time.Friday)
-		fmt.Println(int(time.Saturday), time.Saturday)
-		fmt.Println(int(time.Sunday), time.Sunday)
-	*/
+		fmt.Println("Shift: ", shift)
+
+	}
+
+	fmt.Println("Fin ... ")
+
 }

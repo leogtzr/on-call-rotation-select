@@ -6,10 +6,12 @@ import (
 	"time"
 )
 
-func TestRotationGeneration(t *testing.T) {
-	shift := buildOnCallShift()
-	if shift == nil {
-		t.Error("shift is empty ... ")
+func TestIsDateEqual(t *testing.T) {
+	a := time.Date(time.Now().Year(), time.February, 5, 0, 0, 0, 0, time.UTC)
+	b := time.Date(time.Now().Year(), time.February, 5, 0, 0, 0, 0, time.UTC)
+
+	if !isDateEqual(a, b) {
+		t.Error("Dates should be equal excluding time")
 	}
 }
 
@@ -18,7 +20,7 @@ func TestDateIsWithinHoliday(t *testing.T) {
 
 	dt := initialRotationDate()
 	for i := 0; i < 50; i++ {
-		if is, holiday := IsHolidayWithinShift(mexHolidays, dt); is {
+		if is, holiday := IsHolidayWithinShiftEstrict(mexHolidays, dt); is {
 			fmt.Printf("Holiday [%s] is within date: [%s]\n\n", holiday, dt)
 		}
 		dt = dt.AddDate(0, 0, AWeek)

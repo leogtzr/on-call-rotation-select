@@ -32,7 +32,7 @@ func nonRandomizedTeam() Team {
 	return []OnCallPerson{
 		OnCallPerson{Name: "Shxin", Location: USA},
 		OnCallPerson{Name: "Abhi", Location: USA},
-		OnCallPerson{Name: "Paul", Location: USA},
+		OnCallPerson{Name: "Paulina", Location: USA},
 		OnCallPerson{Name: "Brodr", Location: USA},
 		OnCallPerson{Name: "Jing", Location: USA},
 		OnCallPerson{Name: "Jieru", Location: USA},
@@ -77,33 +77,81 @@ type Rotation struct {
 	OnCallPerson
 }
 
-func buildOnCallShift() []Rotation {
+func (rotation *Rotation) String() string {
+	return fmt.Sprintf("[%s] - [%s]", rotation.Date, rotation.String())
+}
 
-	team := nonRandomizedTeam()
-	team = shuffleTeam(team)
-	shift := make([]Rotation, len(team))
-	initialDate := initialRotationDate()
+func onCallShift() []Rotation {
+	team := shuffleTeam(nonRandomizedTeam())
+	shift := make([]Rotation, 0)
+	initialShiftDate := initialRotationDate()
+	mexHolidays := normalizeHolidayBasedOnCurrentYear(buildMEXHolidays())
+	usaHolidays := normalizeHolidayBasedOnCurrentYear(buildUSAHolidays())
+	var holidays []Holiday
+	nextAvailableIndex := -1
 
-	for _, tm := range team {
-		fmt.Println(tm, initialDate)
-		initialDate = initialDate.AddDate(0, 0, AWeek)
+	for i := 0; i < len(team)-1; i++ {
+		t := team[i]
+
+		if t.Location == MEX {
+			holidays = mexHolidays
+		} else {
+			holidays = usaHolidays
+		}
+
+		if is, holiday := IsHolidayWithinShiftEstrict(holidays, initialShiftDate); is {
+			fmt.Println("Collision with: ", t, ", date: ", initialShiftDate, ", holiday: ", holiday)
+			if t.Location == MEX {
+				nextAvailableIndex = findNextAvailableIndex(team, i, USA)
+			} else {
+				nextAvailableIndex = findNextAvailableIndex(team, i, MEX)
+			}
+
+			fmt.Println("Next available index is: ", nextAvailableIndex, ", which is: ", team[nextAvailableIndex], " current index is: ", i)
+			if nextAvailableIndex != i {
+				team[nextAvailableIndex], team[i] = team[i], team[nextAvailableIndex]
+				shift = append(shift, Rotation{Date: initialShiftDate, OnCallPerson: team[i]})
+			}
+		} else {
+			shift = append(shift, Rotation{Date: initialShiftDate, OnCallPerson: t})
+		}
+
+		initialShiftDate = initialShiftDate.AddDate(0, 0, AWeek)
 	}
 
 	return shift
+
 }
 
-// IsHolidayWithinShift ...
-func IsHolidayWithinShift(holidays []Holiday, shift time.Time) (bool, *Holiday) {
+func findNextAvailableIndex(team Team, currentIndex int, location OnCallerLocation) int {
+
+	for i := currentIndex + 1; i < len(team)-1; i++ {
+		if team[i].Location == location {
+			return i
+		}
+	}
+
+	return currentIndex
+}
+
+func IsHolidayWithinShiftEstrict(holidays []Holiday, shift time.Time) (bool, *Holiday) {
 	startingShift := truncateDateToStartingWeek(shift)
 	endingShift := startingShift.AddDate(0, 0, AWeek)
 
 	for _, holiday := range holidays {
-		if holiday.Date.After(startingShift) && holiday.Date.Before(endingShift) {
+		if (holiday.Date.After(startingShift) || isDateEqual(holiday.Date, startingShift)) &&
+			(holiday.Date.Before(endingShift) || isDateEqual(holiday.Date, endingShift)) {
 			return true, &holiday
 		}
 	}
 
 	return false, nil
+}
+
+func isDateEqual(a, b time.Time) bool {
+	return (a.Year() == b.Year()) &&
+		(a.Month() == b.Month()) &&
+		(a.Day() == b.Day())
 }
 
 // Holiday ...
@@ -122,7 +170,7 @@ func truncateDateToStartingWeek(dt time.Time) time.Time {
 
 func buildUSAHolidays() []Holiday {
 	return []Holiday{
-		Holiday{time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC), "New Year's Day"},
+		//Holiday{time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC), "New Year's Day"},
 		Holiday{time.Date(0, time.January, 15, 0, 0, 0, 0, time.UTC), "Birthday of Martin Luther King, Jr."},
 		Holiday{time.Date(0, time.February, 19, 0, 0, 0, 0, time.UTC), "Washington's Birthday"},
 		Holiday{time.Date(0, time.May, 28, 0, 0, 0, 0, time.UTC), "Memorial Day"},
@@ -137,7 +185,7 @@ func buildUSAHolidays() []Holiday {
 
 func buildMEXHolidays() []Holiday {
 	return []Holiday{
-		Holiday{time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC), "Año Nuevo"},
+		//Holiday{time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC), "Año Nuevo"},
 		Holiday{time.Date(0, time.February, 5, 0, 0, 0, 0, time.UTC), "Día de la Constitución Mexicana"},
 		Holiday{time.Date(0, time.March, 19, 0, 0, 0, 0, time.UTC), "Natalicio de Benito Juárez"},
 		Holiday{time.Date(0, time.May, 1, 0, 0, 0, 0, time.UTC), "Día del Trabajo"},
