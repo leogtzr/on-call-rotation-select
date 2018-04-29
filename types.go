@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
 	"time"
 )
 
@@ -14,6 +15,8 @@ const (
 	USA OnCallerLocation = 0
 	// MEX ...
 	MEX OnCallerLocation = 1
+	// AWeek ...
+	AWeek = 7
 )
 
 // OnCallPerson ...
@@ -60,10 +63,47 @@ func nonRandomizedTeam() Team {
 	}
 }
 
+func shuffleTeam(team Team) Team {
+	for i := range team {
+		j := rand.Intn(i + 1)
+		team[i], team[j] = team[j], team[i]
+	}
+	return team
+}
+
 // Rotation ...
 type Rotation struct {
 	Date time.Time
 	OnCallPerson
+}
+
+func buildOnCallShift() []Rotation {
+
+	team := nonRandomizedTeam()
+	team = shuffleTeam(team)
+	shift := make([]Rotation, len(team))
+	initialDate := initialRotationDate()
+
+	for _, tm := range team {
+		fmt.Println(tm, initialDate)
+		initialDate = initialDate.AddDate(0, 0, AWeek)
+	}
+
+	return shift
+}
+
+// IsHolidayWithinShift ...
+func IsHolidayWithinShift(holidays []Holiday, shift time.Time) (bool, *Holiday) {
+	startingShift := truncateDateToStartingWeek(shift)
+	endingShift := startingShift.AddDate(0, 0, AWeek)
+
+	for _, holiday := range holidays {
+		if holiday.Date.After(startingShift) && holiday.Date.Before(endingShift) {
+			return true, &holiday
+		}
+	}
+
+	return false, nil
 }
 
 // Holiday ...
@@ -74,6 +114,10 @@ type Holiday struct {
 
 func (hd Holiday) String() string {
 	return fmt.Sprintf("%s -> %s", hd.Date, hd.Holiday)
+}
+
+func truncateDateToStartingWeek(dt time.Time) time.Time {
+	return dt.AddDate(0, 0, -int(dt.Weekday())+1)
 }
 
 func buildUSAHolidays() []Holiday {
@@ -102,6 +146,22 @@ func buildMEXHolidays() []Holiday {
 		Holiday{time.Date(0, time.December, 1, 0, 0, 0, 0, time.UTC), "Transmisión de Poder Ejecutivo Federal"},
 		Holiday{time.Date(0, time.December, 25, 0, 0, 0, 0, time.UTC), "Día de Navidad"},
 	}
+}
+
+func normalizeHolidayBasedOnCurrentYear(holidays []Holiday) []Holiday {
+	for i := range holidays {
+		holidays[i].Date = time.Date(
+			time.Now().Year(),
+			holidays[i].Date.Month(),
+			holidays[i].Date.Day(),
+			holidays[i].Date.Hour(),
+			holidays[i].Date.Minute(),
+			holidays[i].Date.Second(),
+			holidays[i].Date.Nanosecond(),
+			time.UTC,
+		)
+	}
+	return holidays
 }
 
 func (onCallPerson OnCallPerson) String() string {
@@ -141,6 +201,20 @@ func initialRotationDate() time.Time {
 	h, min, s, nsec := 0, 0, 0, 0
 	return time.Date(
 		time.Now().Year(),
+		time.January,
+		1,
+		h,
+		min,
+		s,
+		nsec,
+		time.UTC,
+	)
+}
+
+func initialRotationDateWithoutYear() time.Time {
+	h, min, s, nsec := 0, 0, 0, 0
+	return time.Date(
+		-1,
 		time.January,
 		1,
 		h,
