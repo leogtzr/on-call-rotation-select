@@ -25,10 +25,8 @@ func main() {
 			fmt.Println(shift, " <====> ", holiday)
 		}
 
-		fmt.Println("Shift: ", shift)
+		fmt.Println(shift.String())
 
 	}
-
-	fmt.Println("Fin ... ")
 
 }

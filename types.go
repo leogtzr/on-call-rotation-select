@@ -78,7 +78,7 @@ type Rotation struct {
 }
 
 func (rotation *Rotation) String() string {
-	return fmt.Sprintf("[%s] - [%s]", rotation.Date, rotation.String())
+	return fmt.Sprintf("[%s] - [%s]", rotation.Date, rotation.OnCallPerson.String())
 }
 
 func onCallShift() []Rotation {
@@ -134,6 +134,7 @@ func findNextAvailableIndex(team Team, currentIndex int, location OnCallerLocati
 	return currentIndex
 }
 
+// IsHolidayWithinShiftEstrict ...
 func IsHolidayWithinShiftEstrict(holidays []Holiday, shift time.Time) (bool, *Holiday) {
 	startingShift := truncateDateToStartingWeek(shift)
 	endingShift := startingShift.AddDate(0, 0, AWeek)
