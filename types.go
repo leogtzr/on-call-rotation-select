@@ -78,7 +78,8 @@ type Rotation struct {
 }
 
 func (rotation *Rotation) String() string {
-	return fmt.Sprintf("[%s] - [%s]", rotation.Date, rotation.OnCallPerson.String())
+	return fmt.Sprintf("[From: %s, To: %s] - [%s]", rotation.Date, rotation.Date.AddDate(0, 0, AWeek),
+		rotation.OnCallPerson.String())
 }
 
 func onCallShift() []Rotation {
@@ -99,15 +100,15 @@ func onCallShift() []Rotation {
 			holidays = usaHolidays
 		}
 
-		if is, holiday := IsHolidayWithinShiftEstrict(holidays, initialShiftDate); is {
-			fmt.Println("Collision with: ", t, ", date: ", initialShiftDate, ", holiday: ", holiday)
+		if is, _ := IsHolidayWithinShiftEstrict(holidays, initialShiftDate); is {
+			// fmt.Println("Collision with: ", t, ", date: ", initialShiftDate, ", holiday: ", holiday)
 			if t.Location == MEX {
 				nextAvailableIndex = findNextAvailableIndex(team, i, USA)
 			} else {
 				nextAvailableIndex = findNextAvailableIndex(team, i, MEX)
 			}
 
-			fmt.Println("Next available index is: ", nextAvailableIndex, ", which is: ", team[nextAvailableIndex], " current index is: ", i)
+			// fmt.Println("Next available index is: ", nextAvailableIndex, ", which is: ", team[nextAvailableIndex], " current index is: ", i)
 			if nextAvailableIndex != i {
 				team[nextAvailableIndex], team[i] = team[i], team[nextAvailableIndex]
 				shift = append(shift, Rotation{Date: initialShiftDate, OnCallPerson: team[i]})
@@ -171,7 +172,7 @@ func truncateDateToStartingWeek(dt time.Time) time.Time {
 
 func buildUSAHolidays() []Holiday {
 	return []Holiday{
-		//Holiday{time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC), "New Year's Day"},
+		// Holiday{time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC), "New Year's Day"},
 		Holiday{time.Date(0, time.January, 15, 0, 0, 0, 0, time.UTC), "Birthday of Martin Luther King, Jr."},
 		Holiday{time.Date(0, time.February, 19, 0, 0, 0, 0, time.UTC), "Washington's Birthday"},
 		Holiday{time.Date(0, time.May, 28, 0, 0, 0, 0, time.UTC), "Memorial Day"},
@@ -186,7 +187,7 @@ func buildUSAHolidays() []Holiday {
 
 func buildMEXHolidays() []Holiday {
 	return []Holiday{
-		//Holiday{time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC), "Año Nuevo"},
+		// Holiday{time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC), "Año Nuevo"},
 		Holiday{time.Date(0, time.February, 5, 0, 0, 0, 0, time.UTC), "Día de la Constitución Mexicana"},
 		Holiday{time.Date(0, time.March, 19, 0, 0, 0, 0, time.UTC), "Natalicio de Benito Juárez"},
 		Holiday{time.Date(0, time.May, 1, 0, 0, 0, 0, time.UTC), "Día del Trabajo"},
@@ -230,20 +231,6 @@ func (onCallPerson OnCallPerson) String() string {
 
 	return fmt.Sprint(buffer.String())
 
-}
-
-func currentDate() time.Time {
-	h, min, s, nsec := 0, 0, 0, 0
-	return time.Date(
-		time.Now().Year(),
-		time.Now().Month(),
-		time.Now().Day(),
-		h,
-		min,
-		s,
-		nsec,
-		time.UTC,
-	)
 }
 
 func initialRotationDate() time.Time {
