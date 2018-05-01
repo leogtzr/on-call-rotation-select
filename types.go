@@ -78,8 +78,9 @@ type Rotation struct {
 }
 
 func (rotation *Rotation) String() string {
-	return fmt.Sprintf("[From: %s, To: %s] - [%s]", rotation.Date, rotation.Date.AddDate(0, 0, AWeek),
-		rotation.OnCallPerson.String())
+	return fmt.Sprintf("[From: %s, To: %s] - [%s]",
+		rotation.Date.Format("2006-01-02"),
+		rotation.Date.AddDate(0, 0, AWeek).Format("2006-01-02"), rotation.OnCallPerson.String())
 }
 
 func onCallShift() []Rotation {
