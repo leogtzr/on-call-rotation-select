@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -17,6 +18,8 @@ const (
 	MEX OnCallerLocation = 1
 	// AWeek ...
 	AWeek = 7
+	// WeeksPerYear ...
+	WeeksPerYear = 52
 )
 
 // OnCallPerson ...
@@ -63,12 +66,62 @@ func nonRandomizedTeam() Team {
 	}
 }
 
+func teamBasedOnLocation(team Team) map[OnCallerLocation]Team {
+
+	teams := make(map[OnCallerLocation]Team)
+	mxTeam := make([]OnCallPerson, 0)
+	usaTeam := make([]OnCallPerson, 0)
+
+	for _, t := range team {
+		if t.Location == MEX {
+			mxTeam = append(mxTeam, t)
+		} else {
+			usaTeam = append(usaTeam, t)
+		}
+	}
+	teams[MEX] = mxTeam
+	teams[USA] = usaTeam
+
+	return teams
+
+}
+
+func teamShiftsOccurrencesCount(team Team) map[OnCallPerson]int {
+	occurrences := make(map[OnCallPerson]int)
+	for _, t := range team {
+		occurrences[t] = 0
+	}
+	return occurrences
+}
+
 func shuffleTeam(team Team) Team {
 	for i := range team {
 		j := rand.Intn(i + 1)
 		team[i], team[j] = team[j], team[i]
 	}
 	return team
+}
+
+func getRandomTeamWithLocation(
+	counts map[OnCallPerson]int,
+	location OnCallerLocation,
+) OnCallPerson {
+	t := getRandomTeamMember(counts)
+	for t.Location != location {
+		t = getRandomTeamMember(counts)
+	}
+	return t
+}
+
+func getRandomTeamMember(counts map[OnCallPerson]int) OnCallPerson {
+	i := rand.Intn(len(counts))
+	for k := range counts {
+		if i == 0 {
+			return k
+		}
+		i--
+	}
+	panic("never...")
 }
 
 // Rotation ...
@@ -83,8 +136,78 @@ func (rotation *Rotation) String() string {
 		rotation.Date.AddDate(0, 0, AWeek).Format("2006-01-02"), rotation.OnCallPerson.String())
 }
 
+func adjustTeamWeeks(team Team) Team {
+	adjustedTeam := make([]OnCallPerson, 0)
+	i := 0
+
+	for len(adjustedTeam) <= WeeksPerYear {
+		if i < len(team)-1 {
+			adjustedTeam = append(adjustedTeam, team[i])
+		} else {
+			i = 0
+		}
+		i++
+	}
+
+	return adjustedTeam
+}
+
+func maxNumberOfRotations(weeksPerYear int, team Team) float64 {
+	maxNumOfRotations, _ :=
+		strconv.ParseFloat(fmt.Sprintf("%.0f", float64(weeksPerYear)/float64(len(team))), 64)
+	return maxNumOfRotations
+}
+
+// Shift ...
+func Shift() []Rotation {
+
+	team := nonRandomizedTeam()
+	maxNumOfRotations := maxNumberOfRotations(WeeksPerYear, team)
+	teamShiftCounts := teamShiftsOccurrencesCount(team)
+
+	fmt.Println(maxNumOfRotations)
+	initialShiftDate := initialRotationDate()
+
+	mxHolidays := normalizeHolidayBasedOnCurrentYear(buildMEXHolidays())
+	usaHolidays := normalizeHolidayBasedOnCurrentYear(buildUSAHolidays())
+
+	shift := make([]Rotation, 0)
+	for len(shift) < WeeksPerYear {
+		isHolidayMX, holidayMX := IsHolidayWithinShiftEstrict(mxHolidays, initialShiftDate)
+		isHolidayUSA, holidayUSA := IsHolidayWithinShiftEstrict(usaHolidays, initialShiftDate)
+
+		if isHolidayMX && !isHolidayUSA {
+			fmt.Println("There is a collision with: ", holidayMX, " but USA is free ... ")
+			t := getRandomTeamWithLocation(teamShiftCounts, USA)
+			fmt.Println(t, " has been selected ... ")
+		}
+
+		if isHolidayUSA && !isHolidayMX {
+			fmt.Println("There is a collision with: ", holidayUSA, " but MX is free ... ")
+			t := getRandomTeamWithLocation(teamShiftCounts, MEX)
+			fmt.Println(t, " has been selected ... ")
+		}
+
+		if !isHolidayMX && !isHolidayUSA {
+			fmt.Println("There is no collision ... ", initialShiftDate)
+		}
+
+		shift = append(shift, Rotation{})
+		initialShiftDate = initialShiftDate.AddDate(0, 0, AWeek)
+	}
+
+	return shift
+}
+
 func onCallShift() []Rotation {
-	team := shuffleTeam(nonRandomizedTeam())
+
+	rand.Seed(time.Now().Unix())
+
+	team := nonRandomizedTeam()
+	team = adjustTeamWeeks(team)
+	fmt.Println("~~ ", len(team))
+	team = shuffleTeam(team)
+
 	shift := make([]Rotation, 0)
 	initialShiftDate := initialRotationDate()
 	mexHolidays := normalizeHolidayBasedOnCurrentYear(buildMEXHolidays())
@@ -92,7 +215,7 @@ func onCallShift() []Rotation {
 	var holidays []Holiday
 	nextAvailableIndex := -1
 
-	for i := 0; i < len(team)-1; i++ {
+	for i := 0; i < len(team); i++ {
 		t := team[i]
 
 		if t.Location == MEX {
@@ -101,18 +224,20 @@ func onCallShift() []Rotation {
 			holidays = usaHolidays
 		}
 
-		if is, _ := IsHolidayWithinShiftEstrict(holidays, initialShiftDate); is {
-			// fmt.Println("Collision with: ", t, ", date: ", initialShiftDate, ", holiday: ", holiday)
+		if is, holiday := IsHolidayWithinShiftEstrict(holidays, initialShiftDate); is {
+			fmt.Println("Collision with: ", t, ", date: ", initialShiftDate, ", holiday: ", holiday)
 			if t.Location == MEX {
 				nextAvailableIndex = findNextAvailableIndex(team, i, USA)
 			} else {
 				nextAvailableIndex = findNextAvailableIndex(team, i, MEX)
 			}
 
-			// fmt.Println("Next available index is: ", nextAvailableIndex, ", which is: ", team[nextAvailableIndex], " current index is: ", i)
+			fmt.Println("Next available index is: ", nextAvailableIndex, ", which is: ", team[nextAvailableIndex], " current index is: ", i)
 			if nextAvailableIndex != i {
 				team[nextAvailableIndex], team[i] = team[i], team[nextAvailableIndex]
 				shift = append(shift, Rotation{Date: initialShiftDate, OnCallPerson: team[i]})
+			} else {
+				fmt.Println("Shit ... ")
 			}
 		} else {
 			shift = append(shift, Rotation{Date: initialShiftDate, OnCallPerson: t})
@@ -126,13 +251,11 @@ func onCallShift() []Rotation {
 }
 
 func findNextAvailableIndex(team Team, currentIndex int, location OnCallerLocation) int {
-
 	for i := currentIndex + 1; i < len(team)-1; i++ {
 		if team[i].Location == location {
 			return i
 		}
 	}
-
 	return currentIndex
 }
 
@@ -143,7 +266,7 @@ func IsHolidayWithinShiftEstrict(holidays []Holiday, shift time.Time) (bool, *Ho
 
 	for _, holiday := range holidays {
 		if (holiday.Date.After(startingShift) || isDateEqual(holiday.Date, startingShift)) &&
-			(holiday.Date.Before(endingShift) || isDateEqual(holiday.Date, endingShift)) {
+			(holiday.Date.Before(endingShift) /*|| isDateEqual(holiday.Date, endingShift)*/) {
 			return true, &holiday
 		}
 	}

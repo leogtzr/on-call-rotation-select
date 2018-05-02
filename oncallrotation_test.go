@@ -15,6 +15,27 @@ func TestIsDateEqual(t *testing.T) {
 	}
 }
 
+func TestNonRandomizedTeam(t *testing.T) {
+	team := nonRandomizedTeam()
+	if team == nil {
+		t.Errorf("team is null ... ")
+	}
+}
+
+func TestTeamBasedOnLocation(t *testing.T) {
+	team := teamBasedOnLocation(nonRandomizedTeam())
+	if team == nil {
+		t.Errorf("team is null")
+	}
+}
+
+func TestShift(t *testing.T) {
+	shift := Shift()
+	if len(shift) != WeeksPerYear {
+		t.Errorf("Expected: %d, got: %d", WeeksPerYear, len(shift))
+	}
+}
+
 func TestDateIsWithinHoliday(t *testing.T) {
 	mexHolidays := normalizeHolidayBasedOnCurrentYear(buildMEXHolidays())
 
