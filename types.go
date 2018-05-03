@@ -128,7 +128,7 @@ func getRandomTeamMemberMax(counts map[OnCallPerson]int, max int) OnCallPerson {
     var t OnCallPerson
     for !found {
         t = getRandomTeamMember(counts)
-        if counts[t] < max {
+        if counts[t] <= max {
             found = true
         }
     }
@@ -211,12 +211,18 @@ func assignTeamMember(
     location OnCallerLocation,
     shift []Rotation,
     shiftDate time.Time,
-) {
+) (OnCallPerson) {
     // We can't just add up a number here ..., we need to check a few things ...
     // We need to find a team member:
     // -> which is member of `location`
     smallest, onCallPerson := smallestWithLocation(counts, location)
     fmt.Println("The smallest is, ", smallest, onCallPerson)
+    counts[onCallPerson]++
+
+    for k, v := range counts {
+        fmt.Println(k, " | ", v)
+    }
+    /*
     found := false
     for !found {
         ok, _ := everybodyHadSameShifts(counts, smallest)
@@ -225,13 +231,13 @@ func assignTeamMember(
             counts[onCallPerson]++
             found = true
         } else {
-            fmt.Println("We might have one of this situations .... 2, 2, 1, 2, but 1.Location is != ", location)
+            fmt.Println("We might have one of this situations .... 2, 2, 1, 2, but 1.Location is != ", location, onCallPerson, shiftDate)
             found = true
         }
-    }
+    }*/
 
-    shift = append(shift, Rotation{Date: shiftDate, OnCallPerson: onCallPerson})
-
+    //shift = append(shift, Rotation{Date: shiftDate, OnCallPerson: onCallPerson})
+    return onCallPerson
 }
 
 // Shift ...
@@ -241,33 +247,38 @@ func Shift() []Rotation {
     maxNumOfRotations := maxNumberOfRotations(WeeksPerYear, team)
     teamShiftCounts := teamShiftsOccurrencesCount(team)
 
-    // fmt.Println(maxNumOfRotations)
     initialShiftDate := initialRotationDate()
 
     mxHolidays := normalizeHolidayBasedOnCurrentYear(buildMEXHolidays())
     usaHolidays := normalizeHolidayBasedOnCurrentYear(buildUSAHolidays())
+    var t OnCallPerson
 
     shift := make([]Rotation, 0)
     for len(shift) < WeeksPerYear {
+
+        fmt.Println("Now: ", initialShiftDate, " -> ", t)
+
         isHolidayMX, holidayMX := IsHolidayWithinShiftEstrict(mxHolidays, initialShiftDate)
         isHolidayUSA, holidayUSA := IsHolidayWithinShiftEstrict(usaHolidays, initialShiftDate)
 
-        if isHolidayMX && !isHolidayUSA {
-            fmt.Println("There is a collision with: ", holidayMX, " but USA is free ... ")
-            assignTeamMember(teamShiftCounts, int(maxNumOfRotations), USA, shift, initialShiftDate)
+        if isHolidayMX && isHolidayUSA {
+            fmt.Printf("Collision in both sides: %v, holidayMX: %v\n", isHolidayUSA, isHolidayMX, holidayUSA, holidayMX)
+            _, t = smallest(teamShiftCounts)
+            fmt.Printf("Chosen: %v -> {%v} and {%v}\n", t.String(), holidayUSA, holidayMX)
+            teamShiftCounts[t]++
+        } else if isHolidayMX && !isHolidayUSA {
+            fmt.Printf("There is a collision with [%v], but USA is free\n", holidayMX)
+            t = assignTeamMember(teamShiftCounts, int(maxNumOfRotations), USA, shift, initialShiftDate)
+        } else if !isHolidayMX && isHolidayUSA {
+            fmt.Println("There is a collision with [%v], but MX is free\n", holidayUSA)
+            t = assignTeamMember(teamShiftCounts, int(maxNumOfRotations), MEX, shift, initialShiftDate)
+        } else if !isHolidayMX && !isHolidayUSA {
+            t = getRandomTeamMember(teamShiftCounts)
+            fmt.Println("There is no collision, we have chosen", t, " | date: ", initialShiftDate)
+            teamShiftCounts[t]++
         }
 
-        if isHolidayUSA && !isHolidayMX {
-            fmt.Println("There is a collision with: ", holidayUSA, " but MX is free ... ")
-            assignTeamMember(teamShiftCounts, int(maxNumOfRotations), MEX, shift, initialShiftDate)
-        }
-
-        if !isHolidayMX && !isHolidayUSA {
-            // fmt.Println("There is no collision ... ", initialShiftDate)
-            t := getRandomTeamMemberMax(teamShiftCounts, int(maxNumOfRotations))
-            shift = append(shift, Rotation{Date: initialShiftDate, OnCallPerson: t})
-        }
-
+        shift = append(shift, Rotation{Date: initialShiftDate, OnCallPerson: t})
         initialShiftDate = initialShiftDate.AddDate(0, 0, AWeek)
     }
 
@@ -341,7 +352,7 @@ func IsHolidayWithinShiftEstrict(holidays []Holiday, shift time.Time) (bool, *Ho
 
     for _, holiday := range holidays {
         if (holiday.Date.After(startingShift) || isDateEqual(holiday.Date, startingShift)) &&
-            (holiday.Date.Before(endingShift) /*|| isDateEqual(holiday.Date, endingShift)*/) {
+            (holiday.Date.Before(endingShift) || isDateEqual(holiday.Date, endingShift)) {
             return true, &holiday
         }
     }
@@ -391,7 +402,7 @@ func buildMEXHolidays() []Holiday {
         Holiday{time.Date(0, time.March, 19, 0, 0, 0, 0, time.UTC), "Natalicio de Benito Juárez"},
         Holiday{time.Date(0, time.May, 1, 0, 0, 0, 0, time.UTC), "Día del Trabajo"},
         Holiday{time.Date(0, time.September, 16, 0, 0, 0, 0, time.UTC), "Día de la Independencia"},
-        Holiday{time.Date(0, time.November, 19, 0, 0, 0, 0, time.UTC), "Revolución Mexicana"},
+        Holiday{time.Date(0, time.November, 20, 0, 0, 0, 0, time.UTC), "Revolución Mexicana"},
         Holiday{time.Date(0, time.December, 1, 0, 0, 0, 0, time.UTC), "Transmisión de Poder Ejecutivo Federal"},
         Holiday{time.Date(0, time.December, 25, 0, 0, 0, 0, time.UTC), "Día de Navidad"},
     }
