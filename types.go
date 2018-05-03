@@ -262,7 +262,7 @@ func Shift() []Rotation {
         isHolidayUSA, holidayUSA := IsHolidayWithinShiftEstrict(usaHolidays, initialShiftDate)
 
         if isHolidayMX && isHolidayUSA {
-            fmt.Printf("Collision in both sides: %v, holidayMX: %v\n", isHolidayUSA, isHolidayMX, holidayUSA, holidayMX)
+            fmt.Printf("Collision in both sides: %v, holidayMX: %v\n", holidayUSA, holidayMX)
             _, t = smallest(teamShiftCounts)
             fmt.Printf("Chosen: %v -> {%v} and {%v}\n", t.String(), holidayUSA, holidayMX)
             teamShiftCounts[t]++
