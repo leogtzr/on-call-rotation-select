@@ -34,6 +34,7 @@ func TestShift(t *testing.T) {
 	if len(shift) != WeeksPerYear {
 		t.Errorf("Expected: %d, got: %d", WeeksPerYear, len(shift))
 	}
+	fmt.Println(shift)
 }
 
 func TestDateIsWithinHoliday(t *testing.T) {

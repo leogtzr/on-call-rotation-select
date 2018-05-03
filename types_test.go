@@ -63,7 +63,7 @@ func Test_smallest(t *testing.T) {
 	teamShiftCounts[team[2]] = 5
 	teamShiftCounts[team[3]] = 4556
 
-	small := smallest(teamShiftCounts)
+	small, _ := smallest(teamShiftCounts)
 	expected := 3
 	if small != expected {
 		t.Errorf("Got: %d, expected: %d", small, expected)
@@ -86,7 +86,7 @@ func Test_everybodyHadSameShifts(t *testing.T) {
 
 	fmt.Println(teamShiftCounts)
 
-	small := smallest(teamShiftCounts)
+	small, _ := smallest(teamShiftCounts)
 
 	if ok, _ := everybodyHadSameShifts(teamShiftCounts, small); !ok {
 		t.Error("Expecting true ... ")
