@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 	"time"
@@ -156,6 +157,37 @@ func maxNumberOfRotations(weeksPerYear int, team Team) float64 {
 	return maxNumOfRotations
 }
 
+func smallest(counts map[OnCallPerson]int) int {
+	small := math.MaxInt64
+	for _, v := range counts {
+		if v < small {
+			small = v
+		}
+	}
+	return small
+}
+
+func everybodyHadSameShifts(counts map[OnCallPerson]int, smallest int) (bool, OnCallPerson) {
+	for k, v := range counts {
+		if v != smallest {
+			return false, k
+		}
+	}
+	return true, OnCallPerson{}
+}
+
+// TODO: Pending implementation ...
+func averageNumberOfShiftsPerPerson(counts map[OnCallPerson]int, max float64) int {
+	return -1
+}
+
+func assignTeamMember(counts map[OnCallPerson]int, maxNumOfRotations int, location OnCallerLocation) {
+	// We can't just add up a number here ..., we need to check a few things ...
+	// We need to find a team member:
+	// -> which is member of `location`
+	// -> which
+}
+
 // Shift ...
 func Shift() []Rotation {
 
@@ -177,12 +209,14 @@ func Shift() []Rotation {
 		if isHolidayMX && !isHolidayUSA {
 			fmt.Println("There is a collision with: ", holidayMX, " but USA is free ... ")
 			t := getRandomTeamWithLocation(teamShiftCounts, USA)
+			teamShiftCounts[t]++
 			fmt.Println(t, " has been selected ... ")
 		}
 
 		if isHolidayUSA && !isHolidayMX {
 			fmt.Println("There is a collision with: ", holidayUSA, " but MX is free ... ")
 			t := getRandomTeamWithLocation(teamShiftCounts, MEX)
+			teamShiftCounts[t]++
 			fmt.Println(t, " has been selected ... ")
 		}
 
