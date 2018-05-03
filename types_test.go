@@ -33,23 +33,6 @@ func Test_getRandomTeamWithLocation(t *testing.T) {
 	}
 }
 
-func Test_averageNumberOfShiftsPerPerson(t *testing.T) {
-	team := Team{
-		OnCallPerson{Name: "Shxin", Location: USA},
-		OnCallPerson{Name: "Abhi", Location: USA},
-		OnCallPerson{Name: "Paulina", Location: USA},
-		OnCallPerson{Name: "Brodr", Location: USA},
-	}
-	teamShiftCounts := teamShiftsOccurrencesCount(team)
-
-	maxNumOfRotations := maxNumberOfRotations(WeeksPerYear, team)
-	fmt.Println("Here: ", maxNumOfRotations)
-
-	averageNumberOfRotations := averageNumberOfShiftsPerPerson(teamShiftCounts, maxNumOfRotations)
-	fmt.Println(averageNumberOfRotations)
-
-}
-
 func Test_smallest(t *testing.T) {
 	team := Team{
 		OnCallPerson{Name: "Shxin", Location: USA},
