@@ -102,9 +102,7 @@ func shuffleTeam(team Team) Team {
 	return team
 }
 
-func getRandomTeamWithLocation(
-	counts map[OnCallPerson]int,
-	location OnCallerLocation,
+func getRandomTeamWithLocation(counts map[OnCallPerson]int, location OnCallerLocation,
 ) OnCallPerson {
 	t := getRandomTeamMember(counts)
 	for t.Location != location {
