@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -12,13 +11,6 @@ func TestIsDateEqual(t *testing.T) {
 
 	if !isDateEqual(a, b) {
 		t.Error("Dates should be equal excluding time")
-	}
-}
-
-func TestNonRandomizedTeam(t *testing.T) {
-	team := nonRandomizedTeam()
-	if team == nil {
-		t.Errorf("team is null ... ")
 	}
 }
 
@@ -34,21 +26,17 @@ func TestShift(t *testing.T) {
 	if len(shift) != WeeksPerYear {
 		t.Errorf("Expected: %d, got: %d", WeeksPerYear, len(shift))
 	}
-	// fmt.Println(shift)
-	for _, rotation := range shift {
-		fmt.Println(rotation.String())
-	}
 }
 
 func TestDateIsWithinHoliday(t *testing.T) {
-	mexHolidays := normalizeHolidayBasedOnCurrentYear(buildMEXHolidays())
+	holidays := []Holiday{
+		Holiday{time.Date(time.Now().Year(), time.January, 11, 0, 0, 0, 0, time.UTC), "An amazing holiday."},
+	}
 
-	dt := initialRotationDate()
-	for i := 0; i < 50; i++ {
-		if is, holiday := IsHolidayWithinShiftEstrict(mexHolidays, dt); is {
-			fmt.Printf("Holiday [%s] is within date: [%s]\n\n", holiday, dt)
-		}
-		dt = dt.AddDate(0, 0, AWeek)
+	dt := time.Date(time.Now().Year(), time.January, 8, 0, 0, 0, 0, time.UTC)
+
+	if isHoliday, _ := IsHolidayWithinShiftEstrict(holidays, dt); !isHoliday {
+		t.Error("Error, there is a holiday during the shift ... ")
 	}
 }
 
