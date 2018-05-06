@@ -1,4 +1,4 @@
-package main
+package oncall
 
 import (
 	"bytes"
@@ -233,13 +233,13 @@ func Shift() []Rotation {
 	shift := make([]Rotation, 0)
 	for len(shift) < WeeksPerYear {
 
-		isHolidayMX, holidayMX := IsHolidayWithinShiftEstrict(mxHolidays, initialShiftDate)
-		isHolidayUSA, holidayUSA := IsHolidayWithinShiftEstrict(usaHolidays, initialShiftDate)
+		isHolidayMX, _ := IsHolidayWithinShiftEstrict(mxHolidays, initialShiftDate)
+		isHolidayUSA, _ := IsHolidayWithinShiftEstrict(usaHolidays, initialShiftDate)
 
 		if isHolidayMX && isHolidayUSA {
 			//fmt.Printf("Collision in both sides: %v, holidayMX: %v\n", holidayUSA, holidayMX)
 			_, t = smallest(teamShiftCounts)
-			fmt.Printf("Chosen: %v -> {%v} and {%v}\n", t.String(), holidayUSA, holidayMX)
+			// fmt.Printf("Chosen: %v -> {%v} and {%v}\n", t.String(), holidayUSA, holidayMX)
 			teamShiftCounts[t]++
 		} else if isHolidayMX && !isHolidayUSA {
 			//fmt.Printf("There is a collision with [%v], but USA is free\n", holidayMX)
