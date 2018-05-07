@@ -26,17 +26,17 @@ type OnCallerLocation int
 // Rotation ...
 type Rotation struct {
 	Date time.Time
-	OnCallPerson
+	Person
 }
 
-// OnCallPerson ...
-type OnCallPerson struct {
+// Person ...
+type Person struct {
 	Name     string
 	Location OnCallerLocation
 }
 
 // Team represent the list team members.
-type Team []OnCallPerson
+type Team []Person
 
 // Holiday ...
 type Holiday struct {
@@ -45,45 +45,45 @@ type Holiday struct {
 }
 
 func nonRandomizedTeam() Team {
-	return []OnCallPerson{
-		OnCallPerson{Name: "Shxin", Location: USA},
-		OnCallPerson{Name: "Abhi", Location: USA},
-		OnCallPerson{Name: "Paulina", Location: USA},
-		OnCallPerson{Name: "Brodr", Location: USA},
-		OnCallPerson{Name: "Jing", Location: USA},
-		OnCallPerson{Name: "Jieru", Location: USA},
-		OnCallPerson{Name: "Smit", Location: USA},
-		OnCallPerson{Name: "Him", Location: USA},
-		OnCallPerson{Name: "Manj", Location: USA},
-		OnCallPerson{Name: "Andrew", Location: USA},
-		OnCallPerson{Name: "Markos", Location: USA},
-		OnCallPerson{Name: "KritiSr", Location: USA},
-		OnCallPerson{Name: "AndresM", Location: MEX},
-		OnCallPerson{Name: "AndresD", Location: MEX},
-		OnCallPerson{Name: "Cizar", Location: MEX},
-		OnCallPerson{Name: "Hanzel", Location: MEX},
-		OnCallPerson{Name: "Janci", Location: MEX},
-		OnCallPerson{Name: "Pp", Location: MEX},
-		OnCallPerson{Name: "MiKaik", Location: MEX},
-		OnCallPerson{Name: "Alvert", Location: MEX},
-		OnCallPerson{Name: "Marielix", Location: MEX},
-		OnCallPerson{Name: "DinisR", Location: MEX},
-		OnCallPerson{Name: "Juancho", Location: MEX},
-		OnCallPerson{Name: "MiRober", Location: MEX},
-		OnCallPerson{Name: "MiTrivi", Location: MEX},
-		OnCallPerson{Name: "Javier", Location: MEX},
-		OnCallPerson{Name: "David", Location: MEX},
-		OnCallPerson{Name: "DianF", Location: MEX},
-		OnCallPerson{Name: "Gabo", Location: MEX},
-		OnCallPerson{Name: "Paco", Location: MEX},
+	return []Person{
+		Person{Name: "Shxin", Location: USA},
+		Person{Name: "Abhi", Location: USA},
+		Person{Name: "Paulina", Location: USA},
+		Person{Name: "Brodr", Location: USA},
+		Person{Name: "Jing", Location: USA},
+		Person{Name: "Jieru", Location: USA},
+		Person{Name: "Smit", Location: USA},
+		Person{Name: "Him", Location: USA},
+		Person{Name: "Manj", Location: USA},
+		Person{Name: "Andrew", Location: USA},
+		Person{Name: "Markos", Location: USA},
+		Person{Name: "KritiSr", Location: USA},
+		Person{Name: "AndresM", Location: MEX},
+		Person{Name: "AndresD", Location: MEX},
+		Person{Name: "Cizar", Location: MEX},
+		Person{Name: "Hanzel", Location: MEX},
+		Person{Name: "Janci", Location: MEX},
+		Person{Name: "Pp", Location: MEX},
+		Person{Name: "MiKaik", Location: MEX},
+		Person{Name: "Alvert", Location: MEX},
+		Person{Name: "Marielix", Location: MEX},
+		Person{Name: "DinisR", Location: MEX},
+		Person{Name: "Juancho", Location: MEX},
+		Person{Name: "MiRober", Location: MEX},
+		Person{Name: "MiTrivi", Location: MEX},
+		Person{Name: "Javier", Location: MEX},
+		Person{Name: "David", Location: MEX},
+		Person{Name: "DianF", Location: MEX},
+		Person{Name: "Gabo", Location: MEX},
+		Person{Name: "Paco", Location: MEX},
 	}
 }
 
 func teamBasedOnLocation(team Team) map[OnCallerLocation]Team {
 
 	teams := make(map[OnCallerLocation]Team)
-	mxTeam := make([]OnCallPerson, 0)
-	usaTeam := make([]OnCallPerson, 0)
+	mxTeam := make([]Person, 0)
+	usaTeam := make([]Person, 0)
 
 	for _, t := range team {
 		if t.Location == MEX {
@@ -99,8 +99,8 @@ func teamBasedOnLocation(team Team) map[OnCallerLocation]Team {
 
 }
 
-func teamShiftsOccurrencesCount(team Team) map[OnCallPerson]int {
-	occurrences := make(map[OnCallPerson]int)
+func teamShiftsOccurrencesCount(team Team) map[Person]int {
+	occurrences := make(map[Person]int)
 	for _, t := range team {
 		occurrences[t] = 0
 	}
@@ -115,8 +115,8 @@ func shuffleTeam(team Team) Team {
 	return team
 }
 
-func getRandomTeamWithLocation(counts map[OnCallPerson]int, location OnCallerLocation,
-) OnCallPerson {
+func getRandomTeamWithLocation(counts map[Person]int, location OnCallerLocation,
+) Person {
 	t := getRandomTeamMember(counts)
 	for t.Location != location {
 		t = getRandomTeamMember(counts)
@@ -124,7 +124,7 @@ func getRandomTeamWithLocation(counts map[OnCallPerson]int, location OnCallerLoc
 	return t
 }
 
-func getRandomTeamMember(counts map[OnCallPerson]int) OnCallPerson {
+func getRandomTeamMember(counts map[Person]int) Person {
 	i := rand.Intn(len(counts))
 	for k := range counts {
 		if i == 0 {
@@ -135,9 +135,9 @@ func getRandomTeamMember(counts map[OnCallPerson]int) OnCallPerson {
 	panic("never...")
 }
 
-func getRandomTeamMemberMax(counts map[OnCallPerson]int, max int) OnCallPerson {
+func getRandomTeamMemberMax(counts map[Person]int, max int) Person {
 	found := false
-	var t OnCallPerson
+	var t Person
 	for !found {
 		t = getRandomTeamMember(counts)
 		if counts[t] <= max {
@@ -150,7 +150,7 @@ func getRandomTeamMemberMax(counts map[OnCallPerson]int, max int) OnCallPerson {
 func (rotation *Rotation) String() string {
 	return fmt.Sprintf("[From: %s, To: %s] - [%s]",
 		rotation.Date.Format("2006-01-02"),
-		rotation.Date.AddDate(0, 0, AWeek).Format("2006-01-02"), rotation.OnCallPerson.String())
+		rotation.Date.AddDate(0, 0, AWeek).Format("2006-01-02"), rotation.Person.String())
 }
 
 func maxNumberOfRotations(weeksPerYear int, team Team) float64 {
@@ -159,44 +159,44 @@ func maxNumberOfRotations(weeksPerYear int, team Team) float64 {
 	return maxNumOfRotations
 }
 
-func smallest(counts map[OnCallPerson]int) (int, OnCallPerson) {
+func smallest(counts map[Person]int) (int, Person) {
 	small := math.MaxInt64
-	onCallPerson := OnCallPerson{}
+	person := Person{}
 	for k, v := range counts {
 		if v < small {
-			onCallPerson, small = k, v
+			person, small = k, v
 		}
 	}
-	return small, onCallPerson
+	return small, person
 }
 
-func smallestWithLocation(counts map[OnCallPerson]int, location OnCallerLocation) (int, OnCallPerson) {
+func smallestWithLocation(counts map[Person]int, location OnCallerLocation) (int, Person) {
 	small := math.MaxInt64
-	onCallPerson := OnCallPerson{}
+	person := Person{}
 	for k, v := range counts {
 		if v < small && k.Location == location {
-			onCallPerson, small = k, v
+			person, small = k, v
 		}
 	}
-	return small, onCallPerson
+	return small, person
 }
 
-func everybodyHadSameShifts(counts map[OnCallPerson]int, smallest int) (bool, OnCallPerson) {
+func everybodyHadSameShifts(counts map[Person]int, smallest int) (bool, Person) {
 	for k, v := range counts {
 		if v != smallest {
 			return false, k
 		}
 	}
-	return true, OnCallPerson{}
+	return true, Person{}
 }
 
 func assignTeamMember(
-	counts map[OnCallPerson]int,
+	counts map[Person]int,
 	maxNumOfRotations int,
 	location OnCallerLocation,
 	shift []Rotation,
 	shiftDate time.Time,
-) OnCallPerson {
+) Person {
 	_, onCallPerson := smallestWithLocation(counts, location)
 	counts[onCallPerson]++
 
@@ -228,7 +228,7 @@ func Shift() []Rotation {
 
 	mxHolidays := normalizeHolidayBasedOnCurrentYear(buildMEXHolidays())
 	usaHolidays := normalizeHolidayBasedOnCurrentYear(buildUSAHolidays())
-	var t OnCallPerson
+	var t Person
 
 	shift := make([]Rotation, 0)
 	for len(shift) < WeeksPerYear {
@@ -253,7 +253,7 @@ func Shift() []Rotation {
 			teamShiftCounts[t]++
 		}
 
-		shift = append(shift, Rotation{Date: initialShiftDate, OnCallPerson: t})
+		shift = append(shift, Rotation{Date: initialShiftDate, Person: t})
 		initialShiftDate = initialShiftDate.AddDate(0, 0, AWeek)
 	}
 
@@ -332,7 +332,7 @@ func normalizeHolidayBasedOnCurrentYear(holidays []Holiday) []Holiday {
 	return holidays
 }
 
-func (onCallPerson OnCallPerson) String() string {
+func (onCallPerson Person) String() string {
 	var buffer bytes.Buffer
 
 	buffer.WriteByte('"')
