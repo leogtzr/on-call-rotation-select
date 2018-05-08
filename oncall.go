@@ -14,10 +14,9 @@ const (
 	USA OnCallerLocation = 0
 	// MEX ...
 	MEX OnCallerLocation = 1
-	// AWeek ...
-	AWeek = 7
-	// WeeksPerYear ...
-	WeeksPerYear = 52
+
+	aWeek        = 7
+	weeksPerYear = 52
 )
 
 // OnCallerLocation ...
@@ -150,7 +149,7 @@ func getRandomTeamMemberMax(counts map[Person]int, max int) Person {
 func (rotation *Rotation) String() string {
 	return fmt.Sprintf("[From: %s, To: %s] - [%s]",
 		rotation.Date.Format("2006-01-02"),
-		rotation.Date.AddDate(0, 0, AWeek).Format("2006-01-02"), rotation.Person.String())
+		rotation.Date.AddDate(0, 0, aWeek).Format("2006-01-02"), rotation.Person.String())
 }
 
 func maxNumberOfRotations(weeksPerYear int, team Team) float64 {
@@ -221,7 +220,7 @@ func assignTeamMember(
 func Shift() []Rotation {
 
 	team := nonRandomizedTeam()
-	maxNumOfRotations := maxNumberOfRotations(WeeksPerYear, team)
+	maxNumOfRotations := maxNumberOfRotations(weeksPerYear, team)
 	teamShiftCounts := teamShiftsOccurrencesCount(team)
 
 	initialShiftDate := initialRotationDate()
@@ -231,7 +230,7 @@ func Shift() []Rotation {
 	var t Person
 
 	shift := make([]Rotation, 0)
-	for len(shift) < WeeksPerYear {
+	for len(shift) < weeksPerYear {
 
 		isHolidayMX, _ := IsHolidayWithinShiftEstrict(mxHolidays, initialShiftDate)
 		isHolidayUSA, _ := IsHolidayWithinShiftEstrict(usaHolidays, initialShiftDate)
@@ -254,7 +253,7 @@ func Shift() []Rotation {
 		}
 
 		shift = append(shift, Rotation{Date: initialShiftDate, Person: t})
-		initialShiftDate = initialShiftDate.AddDate(0, 0, AWeek)
+		initialShiftDate = initialShiftDate.AddDate(0, 0, aWeek)
 	}
 
 	return shift
@@ -263,7 +262,7 @@ func Shift() []Rotation {
 // IsHolidayWithinShiftEstrict ...
 func IsHolidayWithinShiftEstrict(holidays []Holiday, shift time.Time) (bool, *Holiday) {
 	startingShift := truncateDateToStartingWeek(shift)
-	endingShift := startingShift.AddDate(0, 0, AWeek)
+	endingShift := startingShift.AddDate(0, 0, aWeek)
 
 	for _, holiday := range holidays {
 		if (holiday.Date.After(startingShift) || isDateEqual(holiday.Date, startingShift)) &&
