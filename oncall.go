@@ -279,8 +279,8 @@ func isDateEqual(a, b time.Time) bool {
 		(a.Day() == b.Day())
 }
 
-func (hd Holiday) String() string {
-	return fmt.Sprintf("%s -> %s", hd.Date, hd.Holiday)
+func (h Holiday) String() string {
+	return fmt.Sprintf("%s -> %s", h.Date, h.Holiday)
 }
 
 func truncateDateToStartingWeek(dt time.Time) time.Time {
@@ -331,15 +331,15 @@ func normalizeHolidayBasedOnCurrentYear(holidays []Holiday) []Holiday {
 	return holidays
 }
 
-func (onCallPerson Person) String() string {
+func (p Person) String() string {
 	var buffer bytes.Buffer
 
 	buffer.WriteByte('"')
-	buffer.WriteString(onCallPerson.Name)
+	buffer.WriteString(p.Name)
 	buffer.WriteByte('"')
 	buffer.WriteString(" ~> ")
 
-	switch onCallPerson.Location {
+	switch p.Location {
 	case MEX:
 		buffer.WriteString("MEX")
 	case USA:
@@ -354,20 +354,6 @@ func initialRotationDate() time.Time {
 	h, min, s, nsec := 0, 0, 0, 0
 	return time.Date(
 		time.Now().Year(),
-		time.January,
-		1,
-		h,
-		min,
-		s,
-		nsec,
-		time.UTC,
-	)
-}
-
-func initialRotationDateWithoutYear() time.Time {
-	h, min, s, nsec := 0, 0, 0, 0
-	return time.Date(
-		-1,
 		time.January,
 		1,
 		h,
