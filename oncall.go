@@ -199,20 +199,6 @@ func assignTeamMember(
 	_, onCallPerson := smallestWithLocation(counts, location)
 	counts[onCallPerson]++
 
-	/*
-			found := false
-			for !found {
-				ok, _ := everybodyHadSameShifts(counts, smallest)
-				if !ok && onCallPerson.Location == location {
-					counts[onCallPerson]++
-					found = true
-				} else {
-					found = true
-				}
-		    }
-	*/
-
-	//shift = append(shift, Rotation{Date: shiftDate, OnCallPerson: onCallPerson})
 	return onCallPerson
 }
 
@@ -223,7 +209,7 @@ func Shift() []Rotation {
 	maxNumOfRotations := maxNumberOfRotations(weeksPerYear, team)
 	teamShiftCounts := teamShiftsOccurrencesCount(team)
 
-	initialShiftDate := initialRotationDate()
+	shiftDate := initialRotationDate()
 
 	mxHolidays := normalizeHolidayBasedOnCurrentYear(buildMEXHolidays())
 	usaHolidays := normalizeHolidayBasedOnCurrentYear(buildUSAHolidays())
@@ -232,8 +218,8 @@ func Shift() []Rotation {
 	shift := make([]Rotation, 0)
 	for len(shift) < weeksPerYear {
 
-		isHolidayMX, _ := IsHolidayWithinShiftEstrict(mxHolidays, initialShiftDate)
-		isHolidayUSA, _ := IsHolidayWithinShiftEstrict(usaHolidays, initialShiftDate)
+		isHolidayMX, _ := IsHolidayWithinShiftEstrict(mxHolidays, shiftDate)
+		isHolidayUSA, _ := IsHolidayWithinShiftEstrict(usaHolidays, shiftDate)
 
 		if isHolidayMX && isHolidayUSA {
 			//fmt.Printf("Collision in both sides: %v, holidayMX: %v\n", holidayUSA, holidayMX)
@@ -242,18 +228,18 @@ func Shift() []Rotation {
 			teamShiftCounts[t]++
 		} else if isHolidayMX && !isHolidayUSA {
 			//fmt.Printf("There is a collision with [%v], but USA is free\n", holidayMX)
-			t = assignTeamMember(teamShiftCounts, int(maxNumOfRotations), USA, shift, initialShiftDate)
+			t = assignTeamMember(teamShiftCounts, int(maxNumOfRotations), USA, shift, shiftDate)
 		} else if !isHolidayMX && isHolidayUSA {
 			//fmt.Printf("There is a collision with [%v], but MX is free\n", holidayUSA)
-			t = assignTeamMember(teamShiftCounts, int(maxNumOfRotations), MEX, shift, initialShiftDate)
+			t = assignTeamMember(teamShiftCounts, int(maxNumOfRotations), MEX, shift, shiftDate)
 		} else if !isHolidayMX && !isHolidayUSA {
 			t = getRandomTeamMember(teamShiftCounts)
 			//fmt.Println("There is no collision, we have chosen", t, " | date: ", initialShiftDate)
 			teamShiftCounts[t]++
 		}
 
-		shift = append(shift, Rotation{Date: initialShiftDate, Person: t})
-		initialShiftDate = initialShiftDate.AddDate(0, 0, aWeek)
+		shift = append(shift, Rotation{Date: shiftDate, Person: t})
+		shiftDate = shiftDate.AddDate(0, 0, aWeek)
 	}
 
 	return shift
