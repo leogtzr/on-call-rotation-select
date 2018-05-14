@@ -24,8 +24,8 @@ func TestTeamBasedOnLocation(t *testing.T) {
 
 func TestShift(t *testing.T) {
 	shift := Shift()
-	if len(shift) != WeeksPerYear {
-		t.Errorf("Expected: %d, got: %d", WeeksPerYear, len(shift))
+	if len(shift) != weeksPerYear {
+		t.Errorf("Expected: %d, got: %d", weeksPerYear, len(shift))
 	}
 }
 
@@ -91,10 +91,10 @@ func Test_getRandomTeamWithLocation(t *testing.T) {
 
 func Test_smallest(t *testing.T) {
 	team := Team{
-		OnCallPerson{Name: "Shxin", Location: USA},
-		OnCallPerson{Name: "Abhi", Location: USA},
-		OnCallPerson{Name: "Paulina", Location: USA},
-		OnCallPerson{Name: "Brodr", Location: USA},
+		Person{Name: "Shxin", Location: USA},
+		Person{Name: "Abhi", Location: USA},
+		Person{Name: "Paulina", Location: USA},
+		Person{Name: "Brodr", Location: USA},
 	}
 	teamShiftCounts := teamShiftsOccurrencesCount(team)
 	teamShiftCounts[team[0]] = 3
@@ -112,10 +112,10 @@ func Test_smallest(t *testing.T) {
 
 func Test_everybodyHadSameShifts(t *testing.T) {
 	team := Team{
-		OnCallPerson{Name: "Shxin", Location: USA},
-		OnCallPerson{Name: "Abhi", Location: USA},
-		OnCallPerson{Name: "Paulina", Location: USA},
-		OnCallPerson{Name: "Brodr", Location: USA},
+		Person{Name: "Shxin", Location: USA},
+		Person{Name: "Abhi", Location: USA},
+		Person{Name: "Paulina", Location: USA},
+		Person{Name: "Brodr", Location: USA},
 	}
 	teamShiftCounts := teamShiftsOccurrencesCount(team)
 	teamShiftCounts[team[0]] = 2
