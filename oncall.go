@@ -11,16 +11,16 @@ import (
 
 const (
 	// USA ...
-	USA OnCallerLocation = 0
+	USA onCallerLocation = 0
 	// MEX ...
-	MEX OnCallerLocation = 1
+	MEX onCallerLocation = 1
 
 	aWeek        = 7
 	weeksPerYear = 52
 )
 
 // OnCallerLocation ...
-type OnCallerLocation int
+type onCallerLocation int
 
 // Rotation ...
 type Rotation struct {
@@ -31,7 +31,7 @@ type Rotation struct {
 // Person ...
 type Person struct {
 	Name     string
-	Location OnCallerLocation
+	Location onCallerLocation
 }
 
 // Team represent the list team members.
@@ -78,9 +78,9 @@ func nonRandomizedTeam() Team {
 	}
 }
 
-func teamBasedOnLocation(team Team) map[OnCallerLocation]Team {
+func teamBasedOnLocation(team Team) map[onCallerLocation]Team {
 
-	teams := make(map[OnCallerLocation]Team)
+	teams := make(map[onCallerLocation]Team)
 	mxTeam := make([]Person, 0)
 	usaTeam := make([]Person, 0)
 
@@ -114,7 +114,7 @@ func shuffleTeam(team Team) Team {
 	return team
 }
 
-func getRandomTeamWithLocation(counts map[Person]int, location OnCallerLocation,
+func getRandomTeamWithLocation(counts map[Person]int, location onCallerLocation,
 ) Person {
 	t := getRandomTeamMember(counts)
 	for t.Location != location {
@@ -169,7 +169,7 @@ func smallest(counts map[Person]int) (int, Person) {
 	return small, person
 }
 
-func smallestWithLocation(counts map[Person]int, location OnCallerLocation) (int, Person) {
+func smallestWithLocation(counts map[Person]int, location onCallerLocation) (int, Person) {
 	small := math.MaxInt64
 	person := Person{}
 	for k, v := range counts {
@@ -192,7 +192,7 @@ func everybodyHadSameShifts(counts map[Person]int, smallest int) (bool, Person) 
 func assignTeamMember(
 	counts map[Person]int,
 	maxNumOfRotations int,
-	location OnCallerLocation,
+	location onCallerLocation,
 	shift []Rotation,
 	shiftDate time.Time,
 ) Person {
