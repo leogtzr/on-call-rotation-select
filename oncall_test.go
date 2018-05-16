@@ -1,7 +1,6 @@
 package oncall
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -73,13 +72,6 @@ func Test_teamShiftsOccurrencesCount(t *testing.T) {
 	}
 }
 
-func Test_getRandomTeamMember(t *testing.T) {
-	team := nonRandomizedTeam()
-	teamShiftCounts := teamShiftsOccurrencesCount(team)
-	randomTeamMember := getRandomTeamMember(teamShiftCounts)
-	fmt.Println(randomTeamMember)
-}
-
 func Test_getRandomTeamWithLocation(t *testing.T) {
 	team := nonRandomizedTeam()
 	teamShiftCounts := teamShiftsOccurrencesCount(team)
@@ -118,12 +110,9 @@ func Test_everybodyHadSameShifts(t *testing.T) {
 		Person{Name: "Brodr", Location: USA},
 	}
 	teamShiftCounts := teamShiftsOccurrencesCount(team)
-	teamShiftCounts[team[0]] = 2
-	teamShiftCounts[team[1]] = 2
-	teamShiftCounts[team[2]] = 2
-	teamShiftCounts[team[3]] = 2
+	teamShiftCounts[team[0]], teamShiftCounts[team[1]], teamShiftCounts[team[2]], teamShiftCounts[team[3]] = 2, 2, 2, 2
 
-	fmt.Println(teamShiftCounts)
+	// fmt.Println(teamShiftCounts)
 
 	small, _ := smallest(teamShiftCounts)
 
