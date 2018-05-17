@@ -95,9 +95,8 @@ func Test_smallest(t *testing.T) {
 	teamShiftCounts[team[3]] = 4556
 
 	small, _ := smallest(teamShiftCounts)
-	expected := 3
-	if small != expected {
-		t.Errorf("Got: %d, expected: %d", small, expected)
+	if small != 3 {
+		t.Errorf("Got: %d, expected: 3", small)
 	}
 
 }
